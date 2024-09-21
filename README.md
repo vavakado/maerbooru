@@ -1,5 +1,4 @@
 <picture>
-    <source srcset="https://raw.githubusercontent.com/vavakado/maerbooru/main/public/logo-cropped_inverted.png" media="(prefers-color-scheme: dark)">
     <img src="https://raw.githubusercontent.com/vavakado/maerbooru/main/public/logo-cropped.png" alt="Maerbooru Logo">
 </picture>
 
