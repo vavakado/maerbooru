@@ -1,5 +1,5 @@
+use crate::components::file_upload::FileUpload;
 use crate::error_template::{AppError, ErrorTemplate};
-use crate::fileupload::FileUpload;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
@@ -13,7 +13,7 @@ pub fn App() -> impl IntoView {
         <Stylesheet id="leptos" href="/pkg/maerbooru.css" />
 
         // sets the document title
-        <Title text="Welcome to Leptos" />
+        <Title text="Welcome to Maerbooru" />
 
         // content for this welcome page
         <Router fallback=|| {
