@@ -9,21 +9,26 @@ pub fn FileUpload() -> impl IntoView {
     });
 
     view! {
-            <h3>File Upload</h3>
-            <p>Uploading files is fairly easy using multipart form data.</p>
-            <form on:submit=move |ev: SubmitEvent| {
-                ev.prevent_default();
-                let target = wasm_bindgen::JsCast::unchecked_into:: <HtmlFormElement>(ev.target().unwrap());
-                let form_data = FormData::new_with_form(&target).unwrap();
-                upload_action.dispatch(form_data);
-            }>
-                <input type="file" name="file_to_upload"/>
-                <input type="submit"
-    class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded cursor-pointer transition duration-300 ease-in-out"/>
+        <h3>File Upload</h3>
+        <p>Uploading files is fairly easy using multipart form data.</p>
+        <form on:submit=move |ev: SubmitEvent| {
+            ev.prevent_default();
+            let target = wasm_bindgen::JsCast::unchecked_into::<
+                HtmlFormElement,
+            >(ev.target().unwrap());
+            let form_data = FormData::new_with_form(&target).unwrap();
+            upload_action.dispatch(form_data);
+        }>
+            <input type="file" name="file_to_upload" />
+            <input
+                type="submit"
+                class="py-2 px-4 font-bold text-white bg-blue-500 rounded transition duration-300 ease-in-out cursor-pointer hover:bg-blue-600"
+            />
 
-            </form>
-            <p>
-                {move || if upload_action.input().get().is_none() && upload_action.value().get().is_none() {
+        </form>
+        <p>
+            {move || {
+                if upload_action.input().get().is_none() && upload_action.value().get().is_none() {
                     "Upload a file.".to_string()
                 } else if upload_action.pending().get() {
                     "Uploading...".to_string()
@@ -31,9 +36,10 @@ pub fn FileUpload() -> impl IntoView {
                     value.to_string()
                 } else {
                     format!("{:?}", upload_action.value().get())
-                }}
-            </p>
-        }
+                }
+            }}
+        </p>
+    }
 }
 
 /// A simple file upload function, which does just returns the length of the file.
