@@ -3,6 +3,8 @@
 </picture>
 
 # Maerbooru
+[![Rust CI/CD](https://github.com/vavakado/maerbooru/actions/workflows/rust.yml/badge.svg)](https://github.com/vavakado/maerbooru/actions/workflows/rust.yml)
+[![Docker Image CI](https://github.com/vavakado/maerbooru/actions/workflows/docker-image.yml/badge.svg)](https://github.com/vavakado/maerbooru/actions/workflows/docker-image.yml)
 
 This is a work-in-progress booru style imageboard.
 
