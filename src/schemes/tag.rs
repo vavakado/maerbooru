@@ -9,7 +9,7 @@ pub struct Tag {
 }
 
 impl Tag {
-    fn new(
+    pub fn new(
         name: String,
         description: String,
         id: u64,
@@ -17,27 +17,27 @@ impl Tag {
         category: u8,
         implications: Vec<u64>,
     ) -> Tag {
-        return Tag {
+        Tag {
             name,
             description,
             id,
             is_alias,
             category,
             implications,
-        };
+        }
     }
 }
 
 impl Default for Tag {
     fn default() -> Tag {
-        return Tag {
+        Tag {
             name: String::from("newtag"),
             description: String::new(),
             id: 0,
             is_alias: Alias::No,
             category: 1,
             implications: vec![],
-        };
+        }
     }
 }
 
