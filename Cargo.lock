@@ -1121,6 +1121,7 @@ dependencies = [
  "leptos_axum",
  "leptos_meta",
  "leptos_router",
+ "mime",
  "server_fn",
  "sha2",
  "thiserror",
