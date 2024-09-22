@@ -5,7 +5,7 @@ use web_sys::{FormData, HtmlFormElement, SubmitEvent};
 pub fn FileUpload() -> impl IntoView {
     let upload_action = create_action(|data: &FormData| {
         let data = data.clone();
-        async move { file_length(data.into()).await }
+        async move { upload_post(data.into()).await }
     });
 
     view! {
@@ -53,7 +53,7 @@ pub fn FileUpload() -> impl IntoView {
                                 } else if let Some(Ok(value)) = upload_action.value().get() {
                                     value.to_string()
                                 } else {
-                                    format!("{:?}", upload_action.value().get())
+                                    format!("Server error: {:?}", upload_action.value().get())
                                 }
                             }}
                         </p>
@@ -68,24 +68,51 @@ pub fn FileUpload() -> impl IntoView {
 ///
 /// On the server, this uses the `multer` crate, which provides a streaming API.
 #[server(input = server_fn::codec::MultipartFormData)]
-pub async fn file_length(data: server_fn::codec::MultipartData) -> Result<usize, ServerFnError> {
+pub async fn upload_post(data: server_fn::codec::MultipartData) -> Result<usize, ServerFnError> {
     let mut data = data.into_inner().unwrap();
     let mut count = 0;
+    let acceptable_extensions = ["png", "webp", "avif", "jpg", "jpeg"];
 
     while let Ok(Some(mut field)) = data.next_field().await {
-        let file_name = format!("./uploads/{}", field.file_name().unwrap_or_default());
+        let file_name = field.file_name().unwrap_or_default().to_string();
+        let file_extension = std::path::Path::new(field.file_name().unwrap_or_default())
+            .extension()
+            .and_then(std::ffi::OsStr::to_str)
+            .unwrap_or_default()
+            .to_string();
+        if !acceptable_extensions.contains(&file_extension.as_str()) {
+            return Err(ServerFnError::Args(
+                "Invalid file extension. Upload a image.".to_string(),
+            ));
+        }
 
         if !file_name.is_empty() {
             match tokio::fs::create_dir("./uploads/").await {
                 Ok(()) => (),
                 Err(_error) => (),
             };
-            let mut file = tokio::fs::File::create(&file_name).await?;
+            let mut total_file: Vec<bytes::Bytes> = vec![];
 
             while let Ok(Some(chunk)) = field.chunk().await {
                 let len = chunk.len();
                 count += len;
-                tokio::io::AsyncWriteExt::write_all(&mut file, &chunk).await?;
+                total_file.push(chunk.clone());
+            }
+
+            let file_name = format!(
+                "./uploads/{}.{}",
+                hash_bytes_vec(&total_file)
+                    .iter()
+                    .map(|b| format!("{:02X}", b))
+                    .collect::<Vec<String>>()
+                    .join(""),
+                file_extension
+            )
+            .to_lowercase();
+
+            let mut file = tokio::fs::File::create(&file_name).await?;
+            for byte in total_file {
+                tokio::io::AsyncWriteExt::write_all(&mut file, &byte).await?;
             }
 
             println!("File '{}' saved successfully.", file_name);
@@ -93,4 +120,19 @@ pub async fn file_length(data: server_fn::codec::MultipartData) -> Result<usize,
     }
 
     Ok(count)
+}
+#[cfg(feature = "ssr")]
+fn hash_bytes_vec(vec: &Vec<bytes::Bytes>) -> [u8; 32] {
+    use sha2::Digest;
+    use sha2::Sha256;
+    // Create a hasher
+    let mut hasher = Sha256::new();
+
+    // Update the hasher with each Bytes object
+    for bytes in vec {
+        hasher.update(bytes);
+    }
+
+    // Finalize and return the hash
+    hasher.finalize().into()
 }
