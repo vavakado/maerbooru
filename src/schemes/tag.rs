@@ -1,26 +1,25 @@
-#[derive(Clone, PartialEq, Debug)]
-pub struct Tag {
-    name: String,
-    description: String,
-    id: u64,
-    is_alias: Alias,
-    category: u8,
-    implications: Vec<u64>,
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+pub struct TagData {
+    pub name: String,
+    pub description: String,
+    pub is_alias: Option<u64>,
+    pub category: u8,
+    pub implications: Vec<u64>,
 }
 
-impl Tag {
+impl TagData {
     pub fn new(
         name: String,
         description: String,
-        id: u64,
-        is_alias: Alias,
+        is_alias: Option<u64>,
         category: u8,
         implications: Vec<u64>,
-    ) -> Tag {
-        Tag {
+    ) -> TagData {
+        TagData {
             name,
             description,
-            id,
             is_alias,
             category,
             implications,
@@ -28,22 +27,28 @@ impl Tag {
     }
 }
 
-impl Default for Tag {
-    fn default() -> Tag {
-        Tag {
+impl Default for TagData {
+    fn default() -> TagData {
+        TagData {
             name: String::from("newtag"),
             description: String::new(),
-            id: 0,
-            is_alias: Alias::No,
+            is_alias: None,
             category: 1,
             implications: vec![],
         }
     }
 }
 
-/// No is not an alias and in yes u64 is actual tag id
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub enum Alias {
-    No,
-    Yes(u64),
+#[cfg(feature = "ssr")]
+pub mod server_only {
+    use crate::schemes::tag::TagData;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct Tag {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub id: Option<surrealdb::sql::Thing>,
+        #[serde(flatten)]
+        pub data: TagData,
+    }
 }

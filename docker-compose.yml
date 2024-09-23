@@ -7,6 +7,27 @@ services:
     ports:
       - 6364:8080
     environment:
-      - LEPTOS_SITE_ADDR=0.0.0.0:8080
+      - LEPTOS_SITE_ADDR=0.0.0.0:8000
+      - SURREALDB_USER=root
+      - SURREALDB_PASSWORD=root
     volumes:
       - ./uploads:/app/uploads
+    networks:
+      internal_network:
+        aliases:
+          - maerbooru
+    depends_on:
+      - db
+  db:
+    container_name: surrealdb
+    image: surrealdb/surrealdb:latest
+    volumes:
+      - ./db:/db
+    command: start --user root --pass root surrealkv:///db
+    networks:
+      internal_network:
+        aliases:
+          - surrealdb
+
+networks:
+  internal_network:
