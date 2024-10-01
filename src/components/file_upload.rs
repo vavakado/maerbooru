@@ -3,21 +3,43 @@ use web_sys::{FormData, HtmlFormElement, SubmitEvent};
 
 #[component]
 pub fn FileUpload() -> impl IntoView {
+    let (dark_mode, set_dark_mode) = create_signal(false);
+
     let upload_action = create_action(|data: &FormData| {
         let data = data.clone();
         async move { upload_post(data.into()).await }
     });
 
+    let toggle_dark_mode = move |_| set_dark_mode.update(|dm| *dm = !*dm);
+
     view! {
-        <div class="flex flex-col justify-center py-6 min-h-screen bg-gray-100 sm:py-12">
+        <div class=move || {
+            format!(
+                "flex flex-col justify-center py-6 min-h-screen {} sm:py-12",
+                if dark_mode() { "bg-gray-900" } else { "bg-gray-100" },
+            )
+        }>
             <div class="relative py-3 sm:mx-auto sm:max-w-xl">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg transform -skew-y-6 sm:rounded-3xl sm:-rotate-6 sm:skew-y-0"></div>
-                <div class="relative py-10 px-4 bg-white shadow-lg sm:p-20 sm:rounded-3xl">
+                <div class=move || {
+                    format!(
+                        "relative py-10 px-4 {} shadow-lg sm:p-20 sm:rounded-3xl",
+                        if dark_mode() { "bg-gray-800" } else { "bg-white" },
+                    )
+                }>
                     <div class="mx-auto max-w-md">
-                        <h3 class="mb-4 text-2xl font-semibold text-gray-900">File Upload</h3>
-                        <p class="mb-6 text-gray-600">
-                            Uploading files is fairly easy using multipart form data.
-                        </p>
+                        <h3 class=move || {
+                            format!(
+                                "mb-4 text-2xl font-semibold {}",
+                                if dark_mode() { "text-gray-100" } else { "text-gray-900" },
+                            )
+                        }>"File Upload"</h3>
+                        <p class=move || {
+                            format!(
+                                "mb-6 {}",
+                                if dark_mode() { "text-gray-300" } else { "text-gray-600" },
+                            )
+                        }>"Uploading files is fairly easy using multipart form data."</p>
                         <form
                             on:submit=move |ev: SubmitEvent| {
                                 ev.prevent_default();
@@ -33,7 +55,12 @@ pub fn FileUpload() -> impl IntoView {
                                 <input
                                     type="file"
                                     name="file_to_upload"
-                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                    class=move || {
+                                        format!(
+                                            "block w-full text-sm {} file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100",
+                                            if dark_mode() { "text-gray-300" } else { "text-gray-500" },
+                                        )
+                                    }
                                 />
                             </div>
                             <input
@@ -42,7 +69,12 @@ pub fn FileUpload() -> impl IntoView {
                                 class="py-2 px-4 w-full font-bold text-white bg-blue-500 rounded-lg transition duration-300 ease-in-out cursor-pointer hover:bg-blue-600"
                             />
                         </form>
-                        <p class="text-center text-gray-600">
+                        <p class=move || {
+                            format!(
+                                "text-center {}",
+                                if dark_mode() { "text-gray-300" } else { "text-gray-600" },
+                            )
+                        }>
                             {move || {
                                 if upload_action.input().get().is_none()
                                     && upload_action.value().get().is_none()
@@ -57,6 +89,21 @@ pub fn FileUpload() -> impl IntoView {
                                 }
                             }}
                         </p>
+                        <button
+                            on:click=toggle_dark_mode
+                            class=move || {
+                                format!(
+                                    "mt-4 py-2 px-4 rounded-lg transition duration-300 ease-in-out {}",
+                                    if dark_mode() {
+                                        "bg-gray-700 text-white hover:bg-gray-600"
+                                    } else {
+                                        "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                    },
+                                )
+                            }
+                        >
+                            {move || if dark_mode() { "Light Mode" } else { "Dark Mode" }}
+                        </button>
                     </div>
                 </div>
             </div>
