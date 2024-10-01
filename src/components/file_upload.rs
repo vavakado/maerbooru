@@ -1,16 +1,38 @@
 use leptos::*;
-use web_sys::{FormData, HtmlFormElement, SubmitEvent};
+use web_sys::{window, FormData, HtmlFormElement, SubmitEvent};
 
 #[component]
 pub fn FileUpload() -> impl IntoView {
     let (dark_mode, set_dark_mode) = create_signal(false);
 
+    // Load the initial dark mode preference from localStorage
+    create_effect(move |_| {
+        if let Some(window) = window() {
+            if let Ok(Some(storage)) = window.local_storage() {
+                if let Ok(Some(preference)) = storage.get_item("dark_mode") {
+                    set_dark_mode.set(preference == "true");
+                }
+            }
+        }
+    });
+
+    // Update localStorage when dark mode changes
+    create_effect(move |_| {
+        if let Some(window) = window() {
+            if let Ok(Some(storage)) = window.local_storage() {
+                let _ = storage.set_item("dark_mode", &dark_mode.get().to_string());
+            }
+        }
+    });
+
+    let toggle_dark_mode = move |_| {
+        set_dark_mode.update(|dm| *dm = !*dm);
+    };
+
     let upload_action = create_action(|data: &FormData| {
         let data = data.clone();
         async move { upload_post(data.into()).await }
     });
-
-    let toggle_dark_mode = move |_| set_dark_mode.update(|dm| *dm = !*dm);
 
     view! {
         <div class=move || {
@@ -82,8 +104,8 @@ pub fn FileUpload() -> impl IntoView {
                                     "Upload a file.".to_string()
                                 } else if upload_action.pending().get() {
                                     "Uploading...".to_string()
-                                } else if let Some(Ok(value)) = upload_action.value().get() {
-                                    value.to_string()
+                                } else if let Some(Ok(())) = upload_action.value().get() {
+                                    "Success!".to_string()
                                 } else {
                                     format!("Server error: {:?}", upload_action.value().get())
                                 }
@@ -111,13 +133,9 @@ pub fn FileUpload() -> impl IntoView {
     }
 }
 
-/// A simple file upload function, which does just returns the length of the file.
-///
-/// On the server, this uses the `multer` crate, which provides a streaming API.
 #[server(input = server_fn::codec::MultipartFormData)]
-pub async fn upload_post(data: server_fn::codec::MultipartData) -> Result<usize, ServerFnError> {
+pub async fn upload_post(data: server_fn::codec::MultipartData) -> Result<(), ServerFnError> {
     let mut data = data.into_inner().unwrap();
-    let mut count = 0;
     let acceptable_extensions = ["png", "webp", "avif", "jpg", "jpeg"];
 
     while let Ok(Some(mut field)) = data.next_field().await {
@@ -141,8 +159,6 @@ pub async fn upload_post(data: server_fn::codec::MultipartData) -> Result<usize,
             let mut total_file: Vec<bytes::Bytes> = vec![];
 
             while let Ok(Some(chunk)) = field.chunk().await {
-                let len = chunk.len();
-                count += len;
                 total_file.push(chunk.clone());
             }
 
@@ -166,7 +182,7 @@ pub async fn upload_post(data: server_fn::codec::MultipartData) -> Result<usize,
         }
     }
 
-    Ok(count)
+    Ok(())
 }
 #[cfg(feature = "ssr")]
 fn hash_bytes_vec(vec: &Vec<bytes::Bytes>) -> [u8; 32] {
