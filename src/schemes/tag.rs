@@ -1,3 +1,4 @@
+use leptos::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
@@ -39,6 +40,26 @@ impl Default for Tag {
             category: 1,
             implications: vec![],
         }
+    }
+}
+
+#[server(AddNewTag, "/api")]
+pub async fn add_new_tag(name: String) -> Result<u64, ServerFnError> {
+    let db = crate::db::get_db_connection().await?;
+
+    let new_tag = Tag {
+        custom_id: 0, // This will be replaced by the database
+        name,
+        description: String::new(),
+        is_alias: None,
+        category: 0,
+        implications: vec![],
+    };
+
+    // Use the add_new_tag function we created earlier
+    match crate::schemes::tag::server_only::add_new_tag(&db, &new_tag).await {
+        Ok(custom_id) => Ok(custom_id),
+        Err(e) => Err(ServerFnError::ServerError(e.to_string())),
     }
 }
 
@@ -93,8 +114,8 @@ pub mod server_only {
         DEFINE FIELD category ON TABLE tag TYPE number;
         DEFINE FIELD implications ON TABLE tag TYPE array;
         
-        DEFINE INDEX custom_id ON TABLE tag FIELDS id UNIQUE;
-        DEFINE INDEX name ON TABLE tag FIELDS id UNIQUE;
+        DEFINE INDEX custom_id ON TABLE tag FIELDS custom_id UNIQUE;
+        DEFINE INDEX name_unique ON TABLE tag FIELDS name UNIQUE;
         "#;
 
         db.query(parse(schema)?).await?;

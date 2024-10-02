@@ -1,4 +1,5 @@
 use crate::components::file_upload::FileUpload;
+use crate::components::tag::AddTagForm;
 use crate::error_template::{AppError, ErrorTemplate};
 use leptos::*;
 use leptos_meta::*;
@@ -24,6 +25,7 @@ pub fn App() -> impl IntoView {
             <main>
                 <Routes>
                     <Route path="" view=FileUpload />
+                    <Route path="/tag/add" view=AddTagForm />
                 </Routes>
             </main>
         </Router>
