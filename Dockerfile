@@ -15,7 +15,7 @@ WORKDIR /work
 COPY . .
 
 RUN npm install
-RUN cargo leptos build --release -vv
+RUN cargo leptos build --release -vv -P
 
 FROM rustlang/rust:nightly-alpine AS runner
 LABEL maintainer="vavakado@proton.me"
