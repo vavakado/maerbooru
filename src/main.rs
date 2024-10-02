@@ -1,4 +1,5 @@
 #[cfg(feature = "ssr")]
+#[allow(clippy::needless_return)]
 #[tokio::main]
 async fn main() {
     use axum::Router;

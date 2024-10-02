@@ -158,6 +158,7 @@ pub mod server_only {
 
         use super::*;
 
+        #[allow(clippy::needless_return)]
         #[tokio::test]
         async fn create_and_find_tag_by_id() {
             let db = surrealdb::Surreal::new::<Mem>(()).await.unwrap();
@@ -189,6 +190,8 @@ pub mod server_only {
                 found_tag
             );
         }
+
+        #[allow(clippy::needless_return)]
         #[tokio::test]
         async fn create_and_find_tag_by_name() {
             let db = surrealdb::Surreal::new::<Mem>(()).await.unwrap();
