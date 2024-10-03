@@ -9,6 +9,7 @@ pub struct Tag {
     pub is_alias: Option<u64>,
     pub category: u8,
     pub implications: Vec<u64>,
+    pub use_count: u64,
 }
 
 impl Tag {
@@ -26,6 +27,7 @@ impl Tag {
             is_alias,
             category,
             implications,
+            use_count: 0,
         }
     }
 }
@@ -39,8 +41,25 @@ impl Default for Tag {
             is_alias: None,
             category: 1,
             implications: vec![],
+            use_count: 0,
         }
     }
+}
+
+#[server(GetPaginatedTags, "/api")]
+pub async fn get_paginated_tags(
+    page: u32,
+    per_page: u32,
+    search: Option<String>,
+) -> Result<Vec<Tag>, ServerFnError> {
+    use crate::db::get_db_connection;
+    let db = get_db_connection().await?;
+
+    let tags = crate::schemes::tag::server_only::get_paginated_tags(&db, page, per_page, search)
+        .await
+        .unwrap();
+
+    Ok(tags)
 }
 
 #[server(AddNewTag, "/api")]
@@ -50,6 +69,7 @@ pub async fn add_new_tag(name: String) -> Result<u64, ServerFnError> {
     let new_tag = Tag {
         custom_id: 0, // This will be replaced by the database
         name,
+        use_count: 0,
         description: String::new(),
         is_alias: None,
         category: 0,
@@ -74,6 +94,83 @@ pub mod server_only {
     fn is_snake_case(s: &str) -> bool {
         let re = Regex::new(r"^[a-z0-9():'_-]+([a-z0-9{}:'_-]+)*$").unwrap();
         re.is_match(s)
+    }
+
+    pub fn build_search_query(search: String) -> String {
+        if search.is_empty() {
+            return String::new();
+        }
+
+        let parts: Vec<&str> = search.split('*').collect();
+        let parts_len = parts.len();
+
+        if parts_len == 1 {
+            // No wildcards, exact match
+            return format!("WHERE name = '{}'", escape_string(search));
+        }
+
+        let mut conditions = Vec::new();
+
+        if !parts[0].is_empty() {
+            conditions.push(format!(
+                "string::starts_with(name, '{}')",
+                escape_string(parts[0].into())
+            ));
+        }
+
+        if !parts[parts_len - 1].is_empty() {
+            conditions.push(format!(
+                "string::ends_with(name, '{}')",
+                escape_string(parts[parts_len - 1].into())
+            ));
+        }
+
+        for &part in &parts[1..parts_len - 1] {
+            if !part.is_empty() {
+                conditions.push(format!(
+                    "string::contains(name, '{}')",
+                    escape_string(part.into())
+                ));
+            }
+        }
+
+        if conditions.is_empty() {
+            String::new()
+        } else {
+            format!("WHERE {}", conditions.join(" AND "))
+        }
+    }
+
+    fn escape_string(s: String) -> String {
+        s.replace('\'', "''")
+    }
+
+    pub async fn get_paginated_tags<C: surrealdb::Connection>(
+        db: &Surreal<C>,
+        page: u32,
+        per_page: u32,
+        search: Option<String>,
+    ) -> Result<Vec<Tag>, anyhow::Error> {
+        let offset = (page - 1) * per_page;
+        let mut query = "SELECT * FROM tag".to_string();
+
+        if let Some(search_term) = search {
+            let where_clause = build_search_query(search_term);
+            if !where_clause.is_empty() {
+                query.push_str(&format!(" {}", where_clause));
+            }
+        }
+
+        query.push_str(" ORDER BY use_count DESC LIMIT $limit START $offset");
+
+        let tags: Vec<Tag> = db
+            .query(&query)
+            .bind(("limit", per_page))
+            .bind(("offset", offset))
+            .await?
+            .take(0)?;
+
+        Ok(tags)
     }
 
     async fn get_next_id<C: surrealdb::Connection>(db: &Surreal<C>) -> Result<u64, anyhow::Error> {
@@ -113,6 +210,7 @@ pub mod server_only {
         DEFINE FIELD is_alias ON TABLE tag TYPE option<number>;
         DEFINE FIELD category ON TABLE tag TYPE number;
         DEFINE FIELD implications ON TABLE tag TYPE array;
+        DEFINE FIELD use_count ON TABLE tag TYPE number;
         
         DEFINE INDEX custom_id ON TABLE tag FIELDS custom_id UNIQUE;
         DEFINE INDEX name_unique ON TABLE tag FIELDS name UNIQUE;
@@ -192,6 +290,7 @@ pub mod server_only {
                 name: String::from("test_tag"),
                 description: String::from("what the fuck??"),
                 is_alias: None,
+                use_count: 0,
                 category: 0,
                 implications: vec![],
             };
@@ -225,6 +324,7 @@ pub mod server_only {
                 name: String::from("test_tag"),
                 description: String::from("what the fuck??"),
                 is_alias: None,
+                use_count: 0,
                 category: 0,
                 implications: vec![],
             };

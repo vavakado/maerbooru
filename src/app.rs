@@ -25,7 +25,7 @@ pub fn App() -> impl IntoView {
             <main>
                 <Routes>
                     <Route path="" view=FileUpload />
-                    <Route path="/tag/add" view=AddTagForm />
+                    <Route path="/tags" view=crate::components::tag_table::TagTable />
                 </Routes>
             </main>
         </Router>

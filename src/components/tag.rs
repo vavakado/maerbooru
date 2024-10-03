@@ -1,135 +1,85 @@
-use leptos::*;
-use web_sys::window;
-
 use crate::schemes::tag::AddNewTag;
+use leptos::*;
 
 #[component]
-pub fn AddTagForm() -> impl IntoView {
+pub fn AddTagForm(#[prop(into)] dark_mode: Signal<bool>) -> impl IntoView {
     let (name, set_name) = create_signal(String::new());
     //let (description, set_description) = create_signal(String::new());
     //let (category, set_category) = create_signal(0u8);
 
     let add_tag = create_server_action::<AddNewTag>();
 
-    let (dark_mode, set_dark_mode) = create_signal(false);
-
-    // Load the initial dark mode preference from localStorage
-    create_effect(move |_| {
-        if let Some(window) = window() {
-            if let Ok(Some(storage)) = window.local_storage() {
-                if let Ok(Some(preference)) = storage.get_item("dark_mode") {
-                    set_dark_mode.set(preference == "true");
-                }
-            }
-        }
-    });
-
-    // Update localStorage when dark mode changes
-    create_effect(move |_| {
-        if let Some(window) = window() {
-            if let Ok(Some(storage)) = window.local_storage() {
-                let _ = storage.set_item("dark_mode", &dark_mode.get().to_string());
-            }
-        }
-    });
-
-    let toggle_dark_mode = move |_| {
-        set_dark_mode.update(|dm| *dm = !*dm);
-    };
-
     view! {
-        <div class=move || {
-            format!(
-                "flex flex-col justify-center py-6 min-h-screen {} sm:py-12",
-                if dark_mode() { "bg-gray-900" } else { "bg-gray-100" },
-            )
-        }>
-            <div class="relative py-3 sm:mx-auto sm:max-w-xl">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg transform -skew-y-6 sm:rounded-3xl sm:-rotate-6 sm:skew-y-0"></div>
-                <div class=move || {
-                    format!(
-                        "relative py-10 px-4 {} shadow-lg sm:p-20 sm:rounded-3xl",
-                        if dark_mode() { "bg-gray-800" } else { "bg-white" },
-                    )
-                }>
-                    <div class="mx-auto max-w-md">
-                        <h3 class=move || {
-                            format!(
-                                "mb-4 text-2xl font-semibold {}",
-                                if dark_mode() { "text-gray-100" } else { "text-gray-900" },
-                            )
-                        }>"Add New Tag"</h3>
-                        <p class=move || {
-                            format!(
-                                "mb-6 {}",
-                                if dark_mode() { "text-gray-300" } else { "text-gray-600" },
-                            )
-                        }>"Create a new tag for your booru system."</p>
-                        <form
-                            on:submit=move |ev| {
-                                ev.prevent_default();
-                                add_tag.dispatch(AddNewTag { name: name.get() })
-                            }
-                            class="mb-6"
-                        >
-                            <div class="mb-4">
-                                <input
-                                    type="text"
-                                    placeholder="Tag Name"
-                                    on:input=move |ev| set_name.set(event_target_value(&ev))
-                                    prop:value=name
-                                    class=move || {
-                                        format!(
-                                            "w-full px-3 py-2 text-sm leading-tight {} border rounded appearance-none focus:outline-none focus:shadow-outline",
-                                            if dark_mode() {
-                                                "text-gray-300 bg-gray-700 border-gray-600"
-                                            } else {
-                                                "text-gray-700 bg-white border-gray-300"
-                                            },
-                                        )
-                                    }
-                                />
-                            </div>
+        <div class="relative py-3 sm:mx-auto sm:max-w-xl">
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg transform -skew-y-6 sm:rounded-3xl sm:-rotate-6 sm:skew-y-0"></div>
+            <div class=move || {
+                format!(
+                    "relative py-10 px-4 {} shadow-lg sm:p-20 sm:rounded-3xl",
+                    if dark_mode() { "bg-gray-800" } else { "bg-white" },
+                )
+            }>
+                <div class="mx-auto max-w-md">
+                    <h3 class=move || {
+                        format!(
+                            "mb-4 text-2xl font-semibold {}",
+                            if dark_mode() { "text-gray-100" } else { "text-gray-900" },
+                        )
+                    }>"Add New Tag"</h3>
+                    <p class=move || {
+                        format!(
+                            "mb-6 {}",
+                            if dark_mode() { "text-gray-300" } else { "text-gray-600" },
+                        )
+                    }>"Create a new tag for your booru system."</p>
+                    <form
+                        on:submit=move |ev| {
+                            ev.prevent_default();
+                            add_tag.dispatch(AddNewTag { name: name.get() })
+                        }
+                        class="mb-6"
+                    >
+                        <div class="mb-4">
                             <input
-                                type="submit"
-                                value="Add Tag"
-                                class="py-2 px-4 w-full font-bold text-white bg-blue-500 rounded-lg transition duration-300 ease-in-out cursor-pointer hover:bg-blue-600"
-                            />
-                        </form>
-                        <p class=move || {
-                            format!(
-                                "text-center {}",
-                                if dark_mode() { "text-gray-300" } else { "text-gray-600" },
-                            )
-                        }>
-                            {move || {
-                                if add_tag.pending().get() {
-                                    "Adding tag...".to_string()
-                                } else if let Some(Ok(custom_id)) = add_tag.value().get() {
-                                    format!("Tag added successfully with ID: {}", custom_id)
-                                } else if let Some(Err(e)) = add_tag.value().get() {
-                                    format!("Error: {}", e)
-                                } else {
-                                    "Add a new tag.".to_string()
+                                type="text"
+                                placeholder="Tag Name"
+                                on:input=move |ev| set_name.set(event_target_value(&ev))
+                                prop:value=name
+                                class=move || {
+                                    format!(
+                                        "w-full px-3 py-2 text-sm leading-tight {} border rounded appearance-none focus:outline-none focus:shadow-outline",
+                                        if dark_mode() {
+                                            "text-gray-300 bg-gray-700 border-gray-600"
+                                        } else {
+                                            "text-gray-700 bg-white border-gray-300"
+                                        },
+                                    )
                                 }
-                            }}
-                        </p>
-                        <button
-                            on:click=toggle_dark_mode
-                            class=move || {
-                                format!(
-                                    "mt-4 py-2 px-4 w-full rounded-lg transition duration-300 ease-in-out {}",
-                                    if dark_mode() {
-                                        "bg-gray-700 text-white hover:bg-gray-600"
-                                    } else {
-                                        "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                                    },
-                                )
+                            />
+                        </div>
+                        <input
+                            type="submit"
+                            value="Add Tag"
+                            class="py-2 px-4 w-full font-bold text-white bg-blue-500 rounded-lg transition duration-300 ease-in-out cursor-pointer hover:bg-blue-600"
+                        />
+                    </form>
+                    <p class=move || {
+                        format!(
+                            "text-center {}",
+                            if dark_mode() { "text-gray-300" } else { "text-gray-600" },
+                        )
+                    }>
+                        {move || {
+                            if add_tag.pending().get() {
+                                "Adding tag...".to_string()
+                            } else if let Some(Ok(custom_id)) = add_tag.value().get() {
+                                format!("Tag added successfully with ID: {}", custom_id)
+                            } else if let Some(Err(e)) = add_tag.value().get() {
+                                format!("Error: {}", e)
+                            } else {
+                                "Add a new tag.".to_string()
                             }
-                        >
-                            {move || if dark_mode() { "Light Mode" } else { "Dark Mode" }}
-                        </button>
-                    </div>
+                        }}
+                    </p>
                 </div>
             </div>
         </div>

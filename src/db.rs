@@ -1,10 +1,6 @@
 use leptos::{ServerFnError, ServerFnErrorErr};
 use surrealdb::engine::remote::ws::Ws;
-use surrealdb::{
-    engine::remote::ws::{self, Client},
-    opt::auth::Root,
-    Surreal,
-};
+use surrealdb::{engine::remote::ws::Client, opt::auth::Root, Surreal};
 
 pub async fn get_db_connection() -> Result<Surreal<Client>, ServerFnErrorErr> {
     let surreal_url = std::env::var("SURREAL_URL").unwrap_or("127.0.0.1:8000".to_string());
