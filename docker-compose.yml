@@ -8,8 +8,8 @@ services:
       - 6364:8000
     environment:
       - LEPTOS_SITE_ADDR=0.0.0.0:8000
-      - SURREALDB_USER=root
-      - SURREALDB_PASS=root
+      - SURREAL_USER=root
+      - SURREAL_PASS=root
       - SURREAL_URL=db:8080
     volumes:
       - ./uploads:/app/uploads
