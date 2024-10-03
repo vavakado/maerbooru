@@ -103,7 +103,7 @@ pub fn TagTable() -> impl IntoView {
                                         if dark_mode() {
                                             "hover:bg-blue-600"
                                         } else {
-                                            "hover:bg-blue-600"
+                                            "hover:bg-blue-500"
                                         },
                                     )
                                 }

@@ -26,7 +26,7 @@ pub fn Modal(
                     let blur = if is_open() { "backdrop-filter backdrop-blur-sm" } else { "" };
                     format!("{} {} {} {}", base_classes, visibility, bg_color, blur)
                 }
-                on:click=move |_| on_close.call(())
+                on:click=move |_| leptos::Callable::call(&on_close, ())
             ></div>
 
             // Modal
@@ -62,7 +62,7 @@ pub fn Modal(
                             };
                             format!("{} {}", base_classes, color_classes)
                         }
-                        on:click=move |_| on_close.call(())
+                        on:click=move |_| leptos::Callable::call(&on_close, ())
                     >
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path
