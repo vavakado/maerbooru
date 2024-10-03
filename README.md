@@ -3,10 +3,21 @@
 </picture>
 
 # Maerbooru
+
 [![Rust CI/CD](https://github.com/vavakado/maerbooru/actions/workflows/rust.yml/badge.svg)](https://github.com/vavakado/maerbooru/actions/workflows/rust.yml)
 [![Docker Image CI](https://github.com/vavakado/maerbooru/actions/workflows/docker-image.yml/badge.svg)](https://github.com/vavakado/maerbooru/actions/workflows/docker-image.yml)
 
 This is a work-in-progress booru style imageboard.
+
+## TODO
+
+- [ ] Add posting
+  - [ ] Image upload page
+  - [ ] post grid page
+  - [ ] individual post page
+- [ ] impove tag naming regex ( allow tags like lain\_(serial_experements_lain) or see-through)
+- [ ] add proper documentation comments.
+- [ ] auth
 
 ## Running
 
@@ -24,10 +35,6 @@ cargo leptos build --release
 ```
 
 This will generate the server binary into target/server/release and site package in target/site
-
-## Testing Your Project
-
-TODO: figure out how to set ssr leptos
 
 ## Executing the Server on a Remote Machine Without the Toolchain
 
