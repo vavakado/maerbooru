@@ -1,11 +1,13 @@
 pub mod app;
-pub mod components;
-#[cfg(feature = "ssr")]
-pub mod db;
 pub mod error_template;
 #[cfg(feature = "ssr")]
 pub mod fileserv;
-pub mod schemes;
+pub mod models;
+pub mod components;
+pub mod pages;
+pub mod api;
+#[cfg(feature = "ssr")]
+pub mod server_only;
 
 #[cfg(feature = "hydrate")]
 #[wasm_bindgen::prelude::wasm_bindgen]

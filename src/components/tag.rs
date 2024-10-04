@@ -1,4 +1,4 @@
-use crate::schemes::tag::AddNewTag;
+use crate::api::tags::AddNewTag;
 use leptos::*;
 
 #[component]
