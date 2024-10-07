@@ -1,5 +1,5 @@
-use crate::components::modal::Modal;
 use crate::api::tags::get_paginated_tags;
+use crate::components::modal::Modal;
 use leptos::*;
 use web_sys::window;
 use web_sys::SubmitEvent;

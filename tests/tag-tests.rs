@@ -62,7 +62,9 @@ pub mod server_only {
             implications: vec![],
         };
 
-        if (add_new_tag(&db, &tag).await).is_ok() { panic!("adding the tag should have failed") }
+        if (add_new_tag(&db, &tag).await).is_ok() {
+            panic!("adding the tag should have failed")
+        }
     }
 
     #[allow(clippy::needless_return)]
@@ -83,7 +85,9 @@ pub mod server_only {
             implications: vec![],
         };
 
-        if (add_new_tag(&db, &tag).await).is_err() { panic!("adding the tag shouldn't have failed!") }
+        if (add_new_tag(&db, &tag).await).is_err() {
+            panic!("adding the tag shouldn't have failed!")
+        }
     }
 
     #[allow(clippy::needless_return)]
@@ -104,7 +108,9 @@ pub mod server_only {
             implications: vec![],
         };
 
-        if (add_new_tag(&db, &tag).await).is_ok() { panic!("adding the tag should have failed") }
+        if (add_new_tag(&db, &tag).await).is_ok() {
+            panic!("adding the tag should have failed")
+        }
     }
 
     #[allow(clippy::needless_return)]

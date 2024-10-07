@@ -11,10 +11,9 @@ pub fn AddTagForm(#[prop(into)] dark_mode: Signal<bool>) -> impl IntoView {
 
     view! {
         <div class="relative py-3 sm:mx-auto sm:max-w-xl">
-            <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg transform -skew-y-6 sm:rounded-3xl sm:-rotate-6 sm:skew-y-0"></div>
             <div class=move || {
                 format!(
-                    "relative py-10 px-4 {} shadow-lg sm:p-20 sm:rounded-3xl",
+                    "relative p-1 {} shadow-lg sm:p-20 sm:rounded-3xl",
                     if dark_mode() { "bg-gray-800" } else { "bg-white" },
                 )
             }>

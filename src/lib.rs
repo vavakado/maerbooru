@@ -1,11 +1,11 @@
+pub mod api;
 pub mod app;
+pub mod components;
 pub mod error_template;
 #[cfg(feature = "ssr")]
 pub mod fileserv;
 pub mod models;
-pub mod components;
 pub mod pages;
-pub mod api;
 #[cfg(feature = "ssr")]
 pub mod server_only;
 
