@@ -75,7 +75,7 @@ pub mod server_only {
 
         let tag = Tag {
             custom_id: 0,
-            name: String::from("this_is:(not-so-wrong)"),
+            name: String::from("this_is_(not-so-wrong:uwu)"),
             description: String::from("hello"),
             is_alias: None,
             use_count: 0,
@@ -83,7 +83,7 @@ pub mod server_only {
             implications: vec![],
         };
 
-        if (add_new_tag(&db, &tag).await).is_ok() { panic!("adding the tag should have failed") }
+        if (add_new_tag(&db, &tag).await).is_err() { panic!("adding the tag shouldn't have failed!") }
     }
 
     #[allow(clippy::needless_return)]
@@ -141,15 +141,15 @@ pub mod server_only {
         );
     }
 
-    #[allow(clippy::needless_return)]
-    #[tokio::test]
-    async fn list_tags_by_page() {
-        todo!();
-    } // TODO: add proper testing for paginating.
+    //#[allow(clippy::needless_return)]
+    //#[tokio::test]
+    //async fn list_tags_by_page() {
+    //    todo!();
+    //} // TODO: add proper testing for paginating.
 
-    #[allow(clippy::needless_return)]
-    #[tokio::test]
-    async fn tag_query_generation() {
-        todo!();
-    } // TODO: add proper testing search query generation
+    //#[allow(clippy::needless_return)]
+    //#[tokio::test]
+    //async fn tag_query_generation() {
+    //    todo!();
+    //} // TODO: add proper testing search query generation
 }

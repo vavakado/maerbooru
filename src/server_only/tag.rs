@@ -5,7 +5,7 @@ use surrealdb::{sql::parse, Connection, Surreal};
 use crate::models::tag::Tag;
 
 fn is_snake_case(s: &str) -> bool {
-    let re = Regex::new(r"^[a-z0-9():'_-]+([a-z0-9{}:'_-]+)*$").unwrap();
+    let re = Regex::new(r"^[a-z0-9(){}:'_-]+([a-z0-9(){}:'_-]+)*$").unwrap();
     re.is_match(s)
 }
 
