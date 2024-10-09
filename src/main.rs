@@ -21,6 +21,7 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
         .leptos_routes(&leptos_options, routes, App)
+        .nest_service("/uploads", tower_http::services::ServeDir::new("./uploads"))
         .fallback(file_and_error_handler)
         .with_state(leptos_options);
 
